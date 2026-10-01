@@ -55,7 +55,7 @@ spec:
         # Port configuration
         ports:
         - name: http
-          containerPort: 5000
+          containerPort: 5001
           protocol: TCP
 
         # Startup probe - gives app time to start

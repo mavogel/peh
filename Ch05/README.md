@@ -503,7 +503,7 @@ python demo-app/app.py
 
 **Expected Output**:
 ```
-Starting Flask application on http://0.0.0.0:5000
+Starting Flask application on http://0.0.0.0:5001
 ```
 
 **Command Option B - Docker**:
@@ -512,23 +512,23 @@ Starting Flask application on http://0.0.0.0:5000
 docker build -t platform-demo-app:latest demo-app/
 
 # Run the container
-docker run -p 5000:5000 platform-demo-app:latest
+docker run -p 5001:5001 platform-demo-app:latest
 ```
 
 **Test the App**:
 ```bash
 # Health check
-curl http://localhost:5000/health
+curl http://localhost:5001/health
 # Output: {"status": "healthy"}
 
 # Create an item
-curl -X POST http://localhost:5000/items \
+curl -X POST http://localhost:5001/items \
   -H "Content-Type: application/json" \
   -d '{"name": "My Item", "description": "Test item"}'
 # Output: {"data": {"id": "abc123", "name": "My Item", ...}, "status": 201}
 
 # List items
-curl http://localhost:5000/items
+curl http://localhost:5001/items
 # Output: {"data": [...], "status": 200}
 ```
 
@@ -581,10 +581,10 @@ kubectl get pods -l app=platform-demo-app
 kubectl get endpoints platform-demo-app
 
 # Port-forward to test locally
-kubectl port-forward svc/platform-demo-app 5000:80
+kubectl port-forward svc/platform-demo-app 5001:80
 
 # Test via port-forward
-curl http://localhost:5000/health
+curl http://localhost:5001/health
 ```
 
 **Monitor HPA Scaling**:
@@ -891,12 +891,12 @@ python platform-kpi-collector.py --namespace default --export kpis_baseline.json
 # 4. Deploy demo app (if not already deployed)
 echo "Step 4: Deploy Demo Application"
 docker build -t platform-demo-app:latest demo-app/
-docker run -p 5000:5000 -d platform-demo-app:latest
+docker run -p 5001:5001 -d platform-demo-app:latest
 
 # 5. Validate the deployment
 echo "Step 5: Validate Deployment"
-curl http://localhost:5000/health
-curl -X POST http://localhost:5000/items \
+curl http://localhost:5001/health
+curl -X POST http://localhost:5001/items \
   -H "Content-Type: application/json" \
   -d '{"name": "Test Item"}'
 
