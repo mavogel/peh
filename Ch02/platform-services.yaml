@@ -103,7 +103,9 @@ spec:
         namespace: flux-system
       version: '>=1.30.4'
   values:
-    name: ingress-gateway
+    # Chart derives the pod label from this name: istio-ingressgateway ->
+    # istio: ingressgateway, which the Gateway selectors in Ch02/Ch03 expect.
+    name: istio-ingressgateway
     replicaCount: 2
     service:
       type: LoadBalancer
@@ -478,7 +480,7 @@ spec:
     - from:
         - namespaceSelector:
             matchLabels:
-              name: istio-system
+              kubernetes.io/metadata.name: istio-system
           podSelector:
             matchLabels:
               app: istio-ingressgateway

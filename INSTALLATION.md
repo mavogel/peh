@@ -644,7 +644,7 @@ Open-source identity provider supporting OIDC, OAuth2, and SAML. Deploy to your 
 **All platforms (Helm is cross-platform):**
 ```bash
 helm repo add bitnami https://charts.bitnami.com/bitnami
-helm install keycloak bitnami/keycloak \
+helm install keycloak bitnami/keycloak --version 25.2.0 \
   --namespace keycloak --create-namespace \
   --set auth.adminUser=admin \
   --set auth.adminPassword=admin

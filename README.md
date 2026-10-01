@@ -299,7 +299,7 @@ helm install crossplane crossplane-stable/crossplane \
 
 # Keycloak (Ch3, Ch6) — use port 8180 to avoid Kind port conflict
 helm repo add bitnami https://charts.bitnami.com/bitnami
-helm install keycloak bitnami/keycloak \
+helm install keycloak bitnami/keycloak --version 25.2.0 \
   --namespace keycloak --create-namespace \
   --set auth.adminUser=admin --set auth.adminPassword=admin
 ```
