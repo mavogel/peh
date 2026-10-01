@@ -25,7 +25,7 @@ from audit_logger import AuditLogger
 
 # Configuration
 KUBERNETES_CLUSTER = os.getenv('KUBERNETES_CLUSTER', 'default')
-API_PORT = int(os.getenv('ONBOARDING_API_PORT', 5000))
+API_PORT = int(os.getenv('ONBOARDING_API_PORT', 5001))
 API_HOST = os.getenv('ONBOARDING_API_HOST', '127.0.0.1')
 DEBUG = os.getenv('ONBOARDING_API_DEBUG', 'False').lower() == 'true'
 

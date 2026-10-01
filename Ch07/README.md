@@ -114,7 +114,7 @@ npm install --save-dev jest supertest
 ### Environment Variables
 ```bash
 export ONBOARDING_API_HOST=0.0.0.0
-export ONBOARDING_API_PORT=5000
+export ONBOARDING_API_PORT=5001
 export ONBOARDING_API_DEBUG=False              # Set to True for development
 export ONBOARDING_AUDIT_LOG_PATH=./audit.log
 export ONBOARDING_DB_PATH=./onboarding.db
@@ -158,14 +158,14 @@ python3 onboarding-api.py
 
 Expected output:
 ```
-2024-01-15 10:30:00 - __main__ - INFO - Starting Onboarding API on 0.0.0.0:5000
- * Running on http://0.0.0.0:5000
+2024-01-15 10:30:00 - __main__ - INFO - Starting Onboarding API on 0.0.0.0:5001
+ * Running on http://0.0.0.0:5001
 ```
 
 The API is now ready to accept requests. Verify it's running by checking the health in another terminal:
 
 ```bash
-curl http://localhost:5000/teams
+curl http://localhost:5001/teams
 ```
 
 Expected output: `{"teams": [], "total": 0, "offset": 0, "limit": 20}` (empty initially)
@@ -176,7 +176,7 @@ Expected output: `{"teams": [], "total": 0, "offset": 0, "limit": 20}` (empty in
 Create a team called "platform-team" with Alice as the lead. This operation triggers automatic namespace creation and RBAC setup:
 
 ```bash
-curl -X POST http://localhost:5000/teams \
+curl -X POST http://localhost:5001/teams \
   -H "Content-Type: application/json" \
   -d '{
     "name": "platform-team",
@@ -226,7 +226,7 @@ Expected output: Namespace exists with ResourceQuota and RoleBindings for team-l
 Add developers to the team. Team leads can later manage additional members:
 
 ```bash
-curl -X POST http://localhost:5000/teams/platform-team/members \
+curl -X POST http://localhost:5001/teams/platform-team/members \
   -H "Content-Type: application/json" \
   -d '{
     "email": "bob@example.com",
@@ -234,7 +234,7 @@ curl -X POST http://localhost:5000/teams/platform-team/members \
     "role": "developer"
   }'
 
-curl -X POST http://localhost:5000/teams/platform-team/members \
+curl -X POST http://localhost:5001/teams/platform-team/members \
   -H "Content-Type: application/json" \
   -d '{
     "email": "carol@example.com",
@@ -248,7 +248,7 @@ Expected output: For each member, a 201 response with member details including j
 List team members to verify:
 
 ```bash
-curl http://localhost:5000/teams/platform-team/members
+curl http://localhost:5001/teams/platform-team/members
 ```
 
 Expected output:
@@ -536,7 +536,7 @@ All provisioning operations are designed to be safe to re-run:
 
 **Team Creation**: Creating a team that already exists returns success without modification:
 ```bash
-curl -X POST http://localhost:5000/teams \
+curl -X POST http://localhost:5001/teams \
   -H "Content-Type: application/json" \
   -d '{"name": "platform-team", "display_name": "Platform Engineering Team", "lead": "alice@example.com"}'
 
@@ -700,8 +700,8 @@ cp audit-logger.py audit_logger.py
 # Check Flask installation
 python3 -c "import flask; print(flask.__version__)"
 
-# Verify port 5000 is available
-lsof -i :5000
+# Verify port 5001 is available
+lsof -i :5001
 
 # Check detailed error logs
 ONBOARDING_API_DEBUG=True python3 onboarding-api.py
@@ -717,7 +717,7 @@ kubectl auth can-i create namespaces \
   --as=system:serviceaccount:platform-onboarding:onboarding-api
 
 # View API error logs
-curl -X POST http://localhost:5000/teams \
+curl -X POST http://localhost:5001/teams \
   -H "Content-Type: application/json" \
   -d '{"name": "test", "display_name": "Test", "lead": "test@example.com"}' -v
 ```
@@ -725,13 +725,13 @@ curl -X POST http://localhost:5000/teams \
 ### Permission delegation not working
 ```bash
 # Verify team exists
-curl http://localhost:5000/teams/platform-team
+curl http://localhost:5001/teams/platform-team
 
 # Check audit logs for errors
 python3 audit-logger.py failures
 
 # Verify member is in team
-curl http://localhost:5000/teams/platform-team/members
+curl http://localhost:5001/teams/platform-team/members
 
 # Debug permission check
 python3 -c "from permission_delegation import PermissionManager; \
