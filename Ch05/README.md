@@ -513,7 +513,7 @@ Starting Flask application on http://0.0.0.0:5001
 docker build -t ghcr.io/company/platform-demo-app:1.0.0 demo-app/
 
 # Run the container
-docker run -d --name ghcr.io/company/platform-demo-app -p 5001:5001 platform-demo-app:1.0.0
+docker run -d --name platform-demo-app -p 5001:5001 ghcr.io/company/platform-demo-app:1.0.0
 ```
 
 **Test the App**:
