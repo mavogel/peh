@@ -237,17 +237,17 @@ docker ps               # Should return an empty table (no error)
 kind get clusters
 ```
 
-**If your cluster is listed** (e.g., `peh`), the container may just be stopped. Try restarting it:
+**If your cluster is listed** (e.g., `platform-dev`), the container may just be stopped. Try restarting it:
 
 ```bash
-docker start peh-control-plane    # Replace "peh" with your cluster name
+docker start platform-dev-control-plane    # Replace "platform-dev" with your cluster name
 kubectl cluster-info               # Verify the API server is reachable
 ```
 
 **If no clusters are listed**, you need to recreate:
 
 ```bash
-kind create cluster --name peh --config Ch02/kind-config.yaml
+kind create cluster --name platform-dev --config Ch02/kind-config.yaml
 ```
 
 > **Note:** If you don't have a `kind-config.yaml`, create one with ingress port mappings:

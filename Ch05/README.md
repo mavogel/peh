@@ -128,6 +128,7 @@ curl http://localhost:3000/health
   - CPU utilization target: 50%
   - Memory utilization target: 70%
   - Aggressive scale-up (100% per 30s), conservative scale-down (50% per 60s)
+  - **Requires Metrics Server**: without it the HPA targets show `<unknown>` and it never scales. Install it first (see the Metrics Server row and Kind note in the root `README.md`), then verify with `kubectl top nodes`.
 
 - **PodDisruptionBudget** (ensures availability)
   - Minimum 1 pod available during disruptions
@@ -509,10 +510,10 @@ Starting Flask application on http://0.0.0.0:5001
 **Command Option B - Docker**:
 ```bash
 # Build the image
-docker build -t platform-demo-app:latest demo-app/
+docker build -t ghcr.io/company/platform-demo-app:1.0.0 demo-app/
 
 # Run the container
-docker run -p 5001:5001 platform-demo-app:latest
+docker run -d --name ghcr.io/company/platform-demo-app -p 5001:5001 platform-demo-app:1.0.0
 ```
 
 **Test the App**:
@@ -549,12 +550,12 @@ curl http://localhost:5001/items
 **Option A - Using kubectl directly**:
 ```bash
 # Build the Docker image locally
-docker build -t platform-demo-app:latest demo-app/
+docker build -t ghcr.io/company/platform-demo-app:1.0.0 demo-app/
 
 # Load the image into Kind (Kind can't pull from local Docker daemon)
-kind load docker-image platform-demo-app:latest --name peh
+kind load docker-image ghcr.io/company/platform-demo-app:1.0.0 --name platform-dev
 
-# Apply manifests
+# Apply manifests, but adapt 'IMAGE_TAG_PLACEHOLDER' first to 1.0.0
 kubectl apply -f demo-app/k8s-manifests.yaml
 
 # Verify deployment
@@ -593,8 +594,11 @@ curl http://localhost:5001/health
 kubectl get hpa platform-demo-app-hpa --watch
 
 # Generate load to trigger scaling (in another terminal)
-kubectl run -it --rm debug --image=alpine --restart=Never -- sh
+kubectl run -it --rm debug --image=docker.io/library/alpine --restart=Never \
+  --overrides='{"spec":{"containers":[{"name":"debug","image":"docker.io/library/alpine","stdin":true,"tty":true,"resources":{"requests":{"cpu":"50m","memory":"32Mi"},"limits":{"cpu":"200m","memory":"64Mi"}}}]}}' \
+  -- sh
 # Inside the pod:
+apk add wget # install binary
 while true; do wget -q -O- http://platform-demo-app; done
 ```
 
