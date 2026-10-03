@@ -890,7 +890,7 @@ kubectl get pods -n backstage
 | @kubernetes/client-node | Latest | Kubernetes API client for Node.js |
 | @octokit/rest | Latest | GitHub API client for Node.js |
 
-Chapter 7 uses a dual-stack approach: the primary onboarding API is a Python/Flask application (`onboarding-api.py`), while the team provisioning service (`services/teamService.js`) demonstrates the Node.js equivalent.
+Chapter 7 uses a dual-stack approach: the primary onboarding API is a Python/Flask application (`onboarding_api.py`), while the team provisioning service (`services/teamService.js`) demonstrates the Node.js equivalent.
 
 **Python Onboarding API Dependencies:**
 ```bash
