@@ -331,6 +331,10 @@ If ports are already in use (Kind uses port 8080 for its control-plane):
 sed -i 's/"8080:8080"/"8081:8080"/g' docker-compose.yml
 ```
 
+## Known Issues
+
+> **TODO (to be fixed):** the `create-namespace` step in `templates/backend-service/v1/template.yaml` calls `POST /api/onboarding/v1/namespaces`, which the Chapter 7 onboarding API does not provide. Chapter 7 exposes `POST /teams` (port 5001), which creates the team namespace as `team-<name>`. Until this is reconciled, that scaffolder step fails when run against the Chapter 7 API. The "Chapter 7" references to Backstage in this README also refer to the developer portal, which is Chapter 6.
+
 ## Related Chapters
 
 - **Chapter 7**: Developer Portal with Backstage (where templates are published and discovered)
