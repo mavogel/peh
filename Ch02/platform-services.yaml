@@ -439,6 +439,7 @@ spec:
       - "registry.k8s.io/"
       - "registry.istio.io/"
       - "ghcr.io/"
+      - "xpkg.crossplane.io/"   # Crossplane and its providers/functions (Chapter 9)
 
 ---
 # Network Policies

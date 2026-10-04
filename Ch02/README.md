@@ -181,6 +181,7 @@ Kustomization manifest defining cluster-wide platform services via Flux.
     - `K8sRequiredLimits`: Enforce CPU/memory limits on containers
     - `K8sAllowedRegistries`: Whitelist image registries
   - Constraints: require-limits, allowed-registries
+  - Both constraints enforce (`deny`), so they apply to later chapters' workloads and to Kind's own add-ons. If a PersistentVolumeClaim stays `Pending` because the local-path provisioner's `helper-pod` is denied for missing limits, or an image from a new registry (for example Crossplane's `xpkg.crossplane.io` in Chapter 9) is rejected, see the Chapter 9 README troubleshooting section and Step 1.2.
 
 - **Network Policies**:
   - Default deny ingress in application namespace
