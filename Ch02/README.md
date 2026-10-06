@@ -1417,6 +1417,31 @@ kubectl get peerauthentication -A
 kubectl get pods -A --field-selector status.phase=Running
 ```
 
+**`upstream connect error ... remote connection failure` (e.g. Grafana cannot query Prometheus) after the laptop slept:**
+
+Istio workload certificates are valid for 24 hours. If the machine sleeps for a long time, some sidecars do not renew their certificate on wake-up. The expired certificate makes every mTLS connection to or from that pod fail, while the pods still show `Running`. Compare each sidecar's certificate expiry with the current time:
+
+```bash
+date -u
+for pod in $(kubectl get pods -A -o json | jq -r '.items[] | select(([.spec.containers[]?.name, .spec.initContainers[]?.name]) | index("istio-proxy")) | "\(.metadata.namespace)/\(.metadata.name)"'); do
+  echo -n "$pod  "
+  kubectl exec -n "${pod%%/*}" "${pod##*/}" -c istio-proxy -- pilot-agent request GET certs 2>/dev/null \
+    | jq -r '[.certificates[]?.cert_chain[]?.expiration_time] | unique | .[0]'
+done
+# Any expiry earlier than the date above is an expired certificate
+```
+
+Restart only the `istio-proxy` container of each affected pod. Kubelet restarts it with a fresh certificate, and the application container, its `emptyDir` data (Prometheus metrics, Grafana state) and the pod itself are left untouched:
+
+```bash
+kubectl exec -n monitoring <pod> -c istio-proxy -- sh -c 'kill -TERM 1'
+
+# Verify: istio-proxy restarts=1, expiry roughly 24 hours from now
+kubectl get pod -n monitoring <pod> -o jsonpath='{range .status.initContainerStatuses[*]}{.name}={.restartCount} {end}{"\n"}'
+```
+
+Deleting the pod also works, but it discards `emptyDir` data, including Prometheus metric history and Grafana's UI-created state.
+
 ### Test Failures
 
 **BATS tests failing:**
