@@ -891,7 +891,7 @@ python3 observability-personas.py --persona security --print | jq '.title'
 
 Configure Grafana with the dashboards and alerts:
 
-> **Note:** If your cluster uses the Istio mesh policies from Chapter 2 (STRICT mTLS plus the `allow-external` allow-list), two things break in the `monitoring` namespace: Grafana's Prometheus datasource fails with `RBAC: access denied`, and Prometheus cannot scrape meshed targets such as kube-state-metrics (HTTP 503), so the Pod and Node panels stay empty. Apply `kubectl apply -f istio-monitoring-authz.yaml` to fix both.
+> **Note:** If your cluster uses the Istio mesh policies from Chapter 2 (STRICT mTLS plus the `allow-external` allow-list), two things break in the `monitoring` namespace: Grafana's Prometheus datasource fails with `RBAC: access denied`, and Prometheus cannot scrape meshed targets such as kube-state-metrics (HTTP 503), so the Pod and Node panels stay empty. Apply `kubectl apply -f istio-monitoring-authz.yaml` to fix both. The policy also admits the `opencost` namespace (Chapter 12), which must have Istio sidecar injection enabled.
 
 ```bash
 # Open Grafana UI (default: http://localhost:3000)

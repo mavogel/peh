@@ -22,10 +22,12 @@ metadata:
 spec:
   action: ALLOW
   rules:
-    # mTLS traffic between monitoring workloads (Grafana -> Prometheus, etc.)
+    # mTLS traffic between monitoring workloads (Grafana -> Prometheus, etc.).
+    # "opencost" (Chapter 12) queries Prometheus; it must have the Istio sidecar
+    # injected so its mTLS identity matches here.
     - from:
         - source:
-            namespaces: ["monitoring"]
+            namespaces: ["monitoring", "opencost"]
     # Plaintext metrics scrapes (no mTLS identity, so match on the path instead)
     - to:
         - operation:
