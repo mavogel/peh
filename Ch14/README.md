@@ -68,7 +68,7 @@ helm repo add prometheus-community https://prometheus-community.github.io/helm-c
 helm repo update
 #    The release name must be "monitoring": Prometheus then only loads rules
 #    labelled release=monitoring-kube-prometheus-stack, which Step 6 sets
-helm install monitoring prometheus-community/kube-prometheus-stack \
+helm install monitoring prometheus-community/kube-prometheus-stack --version 92.1.1 \
   --namespace monitoring --wait
 
 # 5. Confirm monitoring stack is running

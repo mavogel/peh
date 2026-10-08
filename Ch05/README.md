@@ -421,7 +421,7 @@ kubectl get nodes                       # Verify node(s) are Ready
 - **Node.js**: 16+ (for JavaScript app and instrumentation)
 - **Docker**: 20.10+ (for containerization)
 - **Kubernetes**: 1.24+ (minikube, Docker Desktop, or cloud cluster) - optional for K8s deployment
-- **kubectl**: 1.24+ (for Kubernetes operations) - optional
+- **kubectl**: 1.37.1 (for Kubernetes operations) - optional
 - **git**: 2.30+ (for repository analysis with KPI collector)
 
 ### Python Dependencies
@@ -1071,7 +1071,7 @@ python platform-kpi-collector.py --namespace default
 
 ### Problem: HPA not scaling (0 replicas scaling to 2-5)
 **Solution**:
-- Ensure metrics-server is installed: `kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml`
+- Ensure metrics-server is installed: `kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.9.0/components.yaml`
 - Wait 30 seconds for metrics to populate
 
 ### Problem: OpenTelemetry exporter fails to connect

@@ -105,8 +105,8 @@ Before deploying the code in this chapter, ensure you have the following prerequ
 
 ### Kubernetes and Core Tools
 - **Kubernetes cluster** (v1.20+): The examples target modern Kubernetes versions with autoscaling support
-- **kubectl** (v1.20+): Configured and authenticated to your cluster
-- **Helm 3**: Required for installing OpenCost, Karpenter, and VPA
+- **kubectl** (v1.37.1): Configured and authenticated to your cluster
+- **Helm 4.3.0**: Required for installing OpenCost, Karpenter, and VPA
 
 ### Observability and Metrics
 - **Prometheus**: Deployed in your cluster (from Chapter 4). OpenCost scrapes Prometheus for cost metrics.
@@ -114,14 +114,14 @@ Before deploying the code in this chapter, ensure you have the following prerequ
   # Deploy if not already installed (e.g., after a Kind cluster restart):
   helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
   helm repo update
-  helm install monitoring prometheus-community/kube-prometheus-stack \
+  helm install monitoring prometheus-community/kube-prometheus-stack --version 92.1.1 \
     --namespace monitoring --create-namespace
   # If already installed, this will error with "cannot re-use a name" — that's fine.
   ```
 - **Metrics Server**: Required for HPA and VPA to function. The examples reference CPU and memory utilization metrics.
   ```bash
   # Install if not present:
-  kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+  kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.9.0/components.yaml
   ```
   > **Kind cluster note:** Metrics Server may fail on Kind without the `--kubelet-insecure-tls` flag. If `kubectl top nodes` fails, patch the deployment:
   > ```bash

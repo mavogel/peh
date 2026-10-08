@@ -162,7 +162,7 @@ python3 pipeline-composer.py --config pipeline-config.yaml --dry-run  # Preview 
 **Chapter Mapping**: Section 8.4 "Canary Deployments with Istio" - Listing 8.4 Canary Manifests
 **Purpose**: Kubernetes and Istio manifests for progressive canary deployments
 **Prerequisites**:
-- Istio 1.10+ with VirtualService and DestinationRule support
+- Istio 1.30.5 with VirtualService and DestinationRule support
 - Prometheus for metrics collection
 - prometheus-operator for ServiceMonitor/PrometheusRule resources
 **Manifest Components**:
@@ -326,7 +326,7 @@ kubectl get nodes                       # Verify node(s) are Ready
 # Install Prometheus Operator
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
-helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack --namespace monitoring --create-namespace --wait
+helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack --version 92.1.1 --namespace monitoring --create-namespace --wait
 
 # Install Istio service mesh
 istioctl install --set profile=demo -y && kubectl label namespace default istio-injection=enabled
@@ -339,8 +339,8 @@ istioctl install --set profile=demo -y && kubectl label namespace default istio-
 - **kubectl**: Latest version (for deployment and health monitoring)
 - **Docker/Docker Buildx**: Latest (for container builds in GitHub Actions)
 - **Kubernetes**: 1.24+ (Kind cluster from Chapter 2)
-- **Istio**: 1.10+ (only for canary deployments with traffic splitting — see install instructions below)
-- **Prometheus**: 2.30+ (for metrics collection and canary validation alerts)
+- **Istio**: 1.30.5 (only for canary deployments with traffic splitting — see install instructions below)
+- **Prometheus**: kube-prometheus-stack chart 92.1.1 (for metrics collection and canary validation alerts)
 - **prometheus-operator**: Latest (for ServiceMonitor and PrometheusRule resources)
 
 ### Installing Istio
@@ -352,7 +352,7 @@ Istio is required for the canary deployment steps (Steps 4–5). Install it befo
 brew install istioctl
 
 # Option B: Direct download
-curl -L https://istio.io/downloadIstio | sh -
+curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.30.5 sh -
 export PATH="$PWD/istio-*/bin:$PATH"
 ```
 

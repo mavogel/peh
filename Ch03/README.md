@@ -93,7 +93,7 @@ kubectl apply -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper/
 - Python 3.7+ for Python scripts
 
 ### Kubernetes Components
-- **cert-manager**: `helm repo add jetstack https://charts.jetstack.io && helm install cert-manager jetstack/cert-manager`
+- **cert-manager**: `helm repo add jetstack https://charts.jetstack.io && helm install cert-manager jetstack/cert-manager --version v1.21.1 --set crds.enabled=true`
 - **Keycloak**: Deployed as StatefulSet in platform-services namespace with persistent storage (PostgreSQL backend recommended)
 - **Ingress Controller**: nginx-ingress or compatible controller for Ingress resources
 - **OPA Gatekeeper**: installed by Chapter 2 (Flux `HelmRelease`); standalone, use the `kubectl apply -f .../gatekeeper/v3.23.1/deploy/gatekeeper.yaml` command under Prerequisites above

@@ -95,7 +95,7 @@ The scripts use only Python standard library modules (no external dependencies),
 
 For the local Kind deployment:
 - Kubernetes cluster (1.24+)
-- Helm 3.10+
+- Helm 4.3.0
 - `kubectl` configured with cluster access
 
 Additionally, for a production deployment:

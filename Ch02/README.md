@@ -507,17 +507,17 @@ docker info --format '{{.ServerVersion}}'
 
 ### Required Tools
 
-1. **Kind** (v0.20+) - Kubernetes in Docker
+1. **Kind** (v0.33.0) - Kubernetes in Docker
    ```bash
    # macOS: brew install kind
    # Linux:
-   curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
+   curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.33.0/kind-linux-amd64
    chmod +x ./kind && sudo mv ./kind /usr/local/bin
    ```
 
-2. **kubectl** (v1.26+) - Kubernetes CLI
+2. **kubectl** (v1.37.1) - Kubernetes CLI
    ```bash
-   curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+   curl -LO "https://dl.k8s.io/release/v1.37.1/bin/linux/amd64/kubectl"
    chmod +x kubectl && sudo mv kubectl /usr/local/bin
    ```
 
@@ -526,20 +526,20 @@ docker info --format '{{.ServerVersion}}'
    curl -fsSL https://get.pulumi.com | sh
    ```
 
-4. **Flux CLI** (v2.0+) - GitOps controller
+4. **Flux CLI** (v2.9.6) - GitOps controller
    ```bash
-   curl -s https://fluxcd.io/install.sh | sudo bash
+   curl -s https://fluxcd.io/install.sh | sudo FLUX_VERSION=2.9.6 bash
    ```
 
-5. **Helm** (v3.0+) - Kubernetes package manager
+5. **Helm** (v4.3.0) - Kubernetes package manager
    ```bash
-   curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+   curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | DESIRED_VERSION=v4.3.0 bash
    ```
 
-6. **Kustomize** (v5.0+) - Kubernetes configuration management
+6. **Kustomize** (v5.8.2) - Kubernetes configuration management
    ```bash
    # macOS: brew install kustomize
-   # Linux: curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+   # Linux: curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash -s -- 5.8.2
    ```
 
 7. **bats** (v1.0+) - Bash Automated Testing System
@@ -727,13 +727,13 @@ platform-system   Active   10s   environment=dev,managed-by=pulumi
 ```bash
 # check version, which should be as displayed or higher
 flux --version                                                        
-flux version 2.9.4
+flux version 2.9.6
 # Option 1: Using Flux CLI (recommended)
 flux install --namespace flux-system
 
 # Option 2: Using Helm (alternative)
 helm repo add fluxcd-community https://fluxcd-community.github.io/helm-charts
-helm install flux2 fluxcd-community/flux2 --namespace flux-system --create-namespace
+helm install flux2 fluxcd-community/flux2 --version 2.19.1 --namespace flux-system --create-namespace
 ```
 
 **Expected Output:**

@@ -113,7 +113,7 @@ kubectl get nodes                       # Verify node(s) are Ready
 # Install OPA Gatekeeper
 helm repo add gatekeeper https://open-policy-agent.github.io/gatekeeper/charts
 helm repo update
-helm install gatekeeper gatekeeper/gatekeeper --namespace gatekeeper-system --create-namespace
+helm install gatekeeper gatekeeper/gatekeeper --version 3.23.1 --namespace gatekeeper-system --create-namespace
 
 ```
 
@@ -123,12 +123,12 @@ helm install gatekeeper gatekeeper/gatekeeper --namespace gatekeeper-system --cr
 - ~200MB memory allocation for Gatekeeper components (audit, controller-manager, constraint processing)
 
 ### OPA Gatekeeper Installation
-- **OPA Gatekeeper** v3.14.0+ (or use Helm chart: `open-policy-agent/gatekeeper`)
+- **OPA Gatekeeper** v3.23.1 (or use Helm chart: `open-policy-agent/gatekeeper`)
 - ValidatingWebhookConfiguration and MutatingWebhookConfiguration supported (standard in K8s v1.18+)
 - Certificate management for webhook TLS (included in gatekeeper-install.yaml)
 
 ### Shift-Left Testing
-- **conftest** v0.41.0+ (specified in `.pre-commit-config.yaml`; used in CI/CD workflows)
+- **conftest** v0.71.1 (specified in `.pre-commit-config.yaml`; used in CI/CD workflows)
   - Installation: `brew install conftest` (macOS) or download from https://github.com/open-policy-agent/conftest/releases
 - **OPA CLI** (opa test, opa parse) for policy unit testing (installed with conftest or separately)
 - **pre-commit** framework (for shift-left validation hooks in `.pre-commit-config.yaml`)
@@ -139,8 +139,8 @@ helm install gatekeeper gatekeeper/gatekeeper --namespace gatekeeper-system --cr
   ```
 
 ### Compliance Monitoring
-- **Prometheus** v2.30+ (optional but recommended for compliance dashboard)
-- **Grafana** v8.0+ (optional for compliance dashboard visualization)
+- **Prometheus** (kube-prometheus-stack chart 92.1.1; optional but recommended for compliance dashboard)
+- **Grafana** (bundled with kube-prometheus-stack chart 92.1.1; optional for compliance dashboard visualization)
 - **Prometheus Operator** (if using gatekeeper-metrics-servicemonitor.yaml)
 
 ### For CI/CD Integration
@@ -180,7 +180,7 @@ helm repo add gatekeeper https://open-policy-agent.github.io/gatekeeper/charts
 helm repo update
 
 # Install Gatekeeper
-helm install gatekeeper gatekeeper/gatekeeper -n gatekeeper-system --create-namespace
+helm install gatekeeper gatekeeper/gatekeeper --version 3.23.1 -n gatekeeper-system --create-namespace
 
 # Verify installation
 helm list -n gatekeeper-system

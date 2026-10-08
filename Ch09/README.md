@@ -94,19 +94,19 @@ kubectl get nodes                       # Verify node(s) are Ready
 # Install Crossplane
 helm repo add crossplane-stable https://charts.crossplane.io/stable
 helm repo update
-helm install crossplane crossplane-stable/crossplane --namespace crossplane-system --create-namespace --wait
+helm install crossplane crossplane-stable/crossplane --version 2.4.2 --namespace crossplane-system --create-namespace --wait
 
 ```
 
 ### System Requirements
 - Kubernetes 1.20 or later (with sufficient RBAC permissions for Crossplane installation)
 - kubectl configured to access your cluster
-- Helm 3.0+ (for Crossplane installation)
+- Helm 4.3.0 (for Crossplane installation)
 - **Crossplane** v2.4 (installed via Helm to cluster, chart pinned to 2.4.2)
 - **Crossplane CLI** v2.x (for building and pushing Crossplane packages)
   ```bash
   # macOS: brew install crossplane/tap/crossplane
-  # Linux: curl -sL https://raw.githubusercontent.com/crossplane/crossplane/master/install.sh | sh
+  # Linux: curl -sL -o crossplane https://releases.crossplane.io/stable/v2.4.2/bin/linux_amd64/crossplane && chmod +x crossplane && sudo mv crossplane /usr/local/bin/
   ```
 - Python 3.8+ (for Python scripts)
 

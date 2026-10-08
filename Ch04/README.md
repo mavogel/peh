@@ -539,7 +539,7 @@ kubectl get nodes                       # Verify node(s) are Ready
 # Install Prometheus + Grafana
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
-helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack --namespace monitoring --create-namespace --wait
+helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack --version 92.1.1 --namespace monitoring --create-namespace --wait
 
 ```
 
@@ -550,8 +550,8 @@ helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack --
 - **Docker/Container Runtime** - For running OTEL Collector in containers
 
 ### External Services
-- **Prometheus 2.30+** - For metrics scraping and storage
-- **Grafana 8.0+** - For dashboard visualization and alerting
+- **Prometheus** (kube-prometheus-stack chart 92.1.1) - For metrics scraping and storage
+- **Grafana** (bundled with kube-prometheus-stack chart 92.1.1) - For dashboard visualization and alerting
 - **Jaeger** - For distributed trace storage and visualization (optional but recommended)
 - **Loki** - For log aggregation (optional)
 
@@ -622,7 +622,7 @@ The observability stack requires Prometheus and Grafana running in-cluster. Depl
 # Deploy kube-prometheus-stack (Prometheus + Grafana + Alertmanager)
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
-helm install monitoring prometheus-community/kube-prometheus-stack \
+helm install monitoring prometheus-community/kube-prometheus-stack --version 92.1.1 \
   --namespace monitoring --create-namespace
 
 # Wait for pods to be ready (1-2 minutes)

@@ -73,17 +73,17 @@ kubectl get nodes                       # Verify node(s) are Ready
 # Install Prometheus + Grafana
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
-helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack --namespace monitoring --create-namespace --wait
+helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack --version 92.1.1 --namespace monitoring --create-namespace --wait
 
 # Install Velero + MinIO
 helm repo add vmware-tanzu https://vmware-tanzu.github.io/helm-charts
 helm repo update
-helm install velero vmware-tanzu/velero --namespace velero --create-namespace
+helm install velero vmware-tanzu/velero --version 12.2.1 --namespace velero --create-namespace
 
 # Install Chaos Mesh
 helm repo add chaos-mesh https://charts.chaos-mesh.org
 helm repo update
-helm install chaos-mesh chaos-mesh/chaos-mesh --namespace chaos-mesh --create-namespace
+helm install chaos-mesh chaos-mesh/chaos-mesh --version 2.8.4 --namespace chaos-mesh --create-namespace
 
 ```
 
@@ -105,7 +105,7 @@ helm install chaos-mesh chaos-mesh/chaos-mesh --namespace chaos-mesh --create-na
 
 2. **Sloth** - SLO-as-Code Prometheus rule generator
    ```bash
-   go install github.com/slok/sloth/cmd/sloth@latest
+   go install github.com/slok/sloth/cmd/sloth@v0.11.0
    ```
    > **Important:** The `go install` command places the binary in `~/go/bin/`. If `which sloth` returns "not found" after install, your Go bin directory is not in your PATH. Run `export PATH=$PATH:~/go/bin` (and add it to your shell profile).
 
@@ -129,7 +129,7 @@ helm install chaos-mesh chaos-mesh/chaos-mesh --namespace chaos-mesh --create-na
    brew install velero
 
    # Linux
-   curl -L -o velero.tar.gz https://github.com/vmware-tanzu/velero/releases/latest/download/velero-v1.12.0-linux-amd64.tar.gz
+   curl -L -o velero.tar.gz https://github.com/vmware-tanzu/velero/releases/download/v1.18.2/velero-v1.18.2-linux-amd64.tar.gz
    tar xzf velero.tar.gz
    sudo mv velero-*/velero /usr/local/bin/
    ```
@@ -141,7 +141,7 @@ helm install chaos-mesh chaos-mesh/chaos-mesh --namespace chaos-mesh --create-na
    ```bash
    helm repo add chaos-mesh https://charts.chaos-mesh.org
    helm repo update
-   helm install chaos-mesh chaos-mesh/chaos-mesh \
+   helm install chaos-mesh chaos-mesh/chaos-mesh --version 2.8.4 \
      --namespace chaos-mesh --create-namespace \
      --set chaosDaemon.runtime=containerd \
      --set chaosDaemon.socketPath=/run/containerd/containerd.sock
@@ -160,7 +160,7 @@ helm install chaos-mesh chaos-mesh/chaos-mesh --namespace chaos-mesh --create-na
    # If not already installed from Chapter 4/11/12:
    helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
    helm repo update
-   helm install monitoring prometheus-community/kube-prometheus-stack \
+   helm install monitoring prometheus-community/kube-prometheus-stack --version 92.1.1 \
      --namespace monitoring --create-namespace
    ```
    If already installed, the `helm install` will error with "cannot re-use a name" — that's fine.
@@ -197,7 +197,7 @@ helm list -n monitoring 2>/dev/null | grep monitoring
 # If no output, install it:
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
-helm install monitoring prometheus-community/kube-prometheus-stack \
+helm install monitoring prometheus-community/kube-prometheus-stack --version 92.1.1 \
   --namespace monitoring --create-namespace
 
 # Verify deployment
@@ -420,11 +420,11 @@ cat platform-backup-config/values.yaml
 
 # Render the chart with these values to check them without installing anything
 # (--api-versions lets the chart emit the ServiceMonitor and PrometheusRule)
-helm template velero vmware-tanzu/velero -n velero \
+helm template velero vmware-tanzu/velero --version 12.2.1 -n velero \
   -f platform-backup-config/values.yaml --api-versions monitoring.coreos.com/v1
 
 # Deploy Velero using these values (after customizing for your environment)
-helm install velero vmware-tanzu/velero \
+helm install velero vmware-tanzu/velero --version 12.2.1 \
   --namespace velero --create-namespace \
   -f platform-backup-config/values.yaml
 ```
@@ -442,7 +442,7 @@ helm repo add chaos-mesh https://charts.chaos-mesh.org
 helm repo update
 
 # Install Chaos Mesh in namespace (settings: containerd runtime, privileged daemon, webhook)
-helm install chaos-mesh chaos-mesh/chaos-mesh \
+helm install chaos-mesh chaos-mesh/chaos-mesh --version 2.8.4 \
   --namespace chaos-mesh --create-namespace \
   -f chaos-mesh-values.yaml
 

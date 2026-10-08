@@ -275,7 +275,7 @@ brew install kubectl
 
 **Linux (Ubuntu/Debian):**
 ```bash
-curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+curl -LO "https://dl.k8s.io/release/v1.37.1/bin/linux/amd64/kubectl"
 sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 ```
 
@@ -306,7 +306,7 @@ brew install kind
 
 **Linux (Ubuntu/Debian):**
 ```bash
-curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
+curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.33.0/kind-linux-amd64
 chmod +x ./kind && sudo mv ./kind /usr/local/bin/kind
 ```
 
@@ -330,6 +330,8 @@ kind --version
 
 Kubernetes package manager for deploying charts (Istio, Backstage, Gatekeeper, OpenCost, Velero, and more).
 
+> **Version pinning:** Every Helm chart the chapters install carries a `--version` flag, and the manifests and Linux binaries downloaded for them use a fixed release instead of `latest`, `stable`, or `master`. These are the versions the chapters were written and tested against. Newer releases may change chart values or CLI behavior; upgrade deliberately and re-test. The Homebrew, apt, and Chocolatey commands install whatever those package managers currently offer; the "Version" column of each chapter table lists the version the chapters used. The optional Jaeger, Loki, and Karpenter installs and the `create-app@latest` option are not used by any chapter code and are not pinned.
+
 **macOS:**
 ```bash
 brew install helm
@@ -337,7 +339,7 @@ brew install helm
 
 **Linux (Ubuntu/Debian):**
 ```bash
-curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | DESIRED_VERSION=v4.3.0 bash
 ```
 
 **Windows:**
@@ -502,9 +504,9 @@ pip install -r requirements.txt
 
 | Tool | Version | Purpose |
 |------|---------|---------|
-| Flux CD | ≥2.0 | GitOps continuous delivery |
-| Istio | ≥1.20 | Service mesh with mTLS |
-| Kustomize | ≥5.0 | Kubernetes configuration management |
+| Flux CD | 2.9.6 | GitOps continuous delivery |
+| Istio | 1.30.5 | Service mesh with mTLS (Helm charts `base`, `istiod`, `gateway`) |
+| Kustomize | 5.8.2 | Kubernetes configuration management |
 | bats-core | ≥1.10 | Bash Automated Testing System |
 
 #### Flux CD
@@ -518,7 +520,7 @@ brew install fluxcd/tap/flux
 
 **Linux (Ubuntu/Debian):**
 ```bash
-curl -s https://fluxcd.io/install.sh | sudo bash
+curl -s https://fluxcd.io/install.sh | sudo FLUX_VERSION=2.9.6 bash
 ```
 
 **Windows:**
@@ -550,7 +552,7 @@ brew install istioctl
 
 **Linux (Ubuntu/Debian):**
 ```bash
-curl -L https://istio.io/downloadIstio | sh -
+curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.30.5 sh -
 sudo mv istio-*/bin/istioctl /usr/local/bin/
 ```
 
@@ -583,7 +585,7 @@ brew install kustomize
 
 **Linux (Ubuntu/Debian):**
 ```bash
-curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash -s -- 5.8.2
 sudo mv kustomize /usr/local/bin/
 ```
 
@@ -633,9 +635,9 @@ bats --version
 
 | Tool | Version | Purpose |
 |------|---------|---------|
-| Keycloak | ≥22.0 | Identity and access management (OIDC/OAuth2) |
-| OPA Gatekeeper | ≥3.14 | Kubernetes admission controller for policy enforcement |
-| cert-manager | ≥1.13 | Automated TLS certificate management |
+| Keycloak | chart 25.2.0 | Identity and access management (OIDC/OAuth2) |
+| OPA Gatekeeper | chart 3.23.1 | Kubernetes admission controller for policy enforcement |
+| cert-manager | chart v1.21.1 | Automated TLS certificate management |
 
 #### Keycloak
 
@@ -669,7 +671,7 @@ Policy controller for Kubernetes that enforces policies written in Rego at admis
 ```bash
 helm repo add gatekeeper https://open-policy-agent.github.io/gatekeeper/charts
 helm repo update
-helm install gatekeeper gatekeeper/gatekeeper \
+helm install gatekeeper gatekeeper/gatekeeper --version 3.23.1 \
   --namespace gatekeeper-system --create-namespace \
   --set enableGenerateViolationEvents=true \
   --set constraintViolationsLimit=1000 \
@@ -695,9 +697,9 @@ Automates TLS certificate management within Kubernetes clusters.
 ```bash
 helm repo add jetstack https://charts.jetstack.io
 helm repo update
-helm install cert-manager jetstack/cert-manager \
+helm install cert-manager jetstack/cert-manager --version v1.21.1 \
   --namespace cert-manager --create-namespace \
-  --set installCRDs=true
+  --set crds.enabled=true
 ```
 
 **Verify installation:**
@@ -707,7 +709,7 @@ kubectl get pods -n cert-manager
 
 > [!WARNING]
 > **Common pitfalls to watch out for**
-> - Skipping `--set installCRDs=true` leaves cert-manager unable to create Certificate and Issuer resources.
+> - Skipping `--set crds.enabled=true` leaves cert-manager unable to create Certificate and Issuer resources (this replaces the deprecated `installCRDs` value).
 > - Using the staging Let's Encrypt issuer without realizing it produces untrusted certificates in production.
 > - Not monitoring certificate expiration means services silently break when certs expire.
 
@@ -731,9 +733,11 @@ The observability stack is best deployed to your Kind cluster using Helm charts.
 ```bash
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
-helm install monitoring prometheus-community/kube-prometheus-stack \
+helm install monitoring prometheus-community/kube-prometheus-stack --version 92.1.1 \
   --namespace monitoring --create-namespace
 ```
+
+The release name `monitoring` matters: Prometheus then only loads rules labelled `release: monitoring-kube-prometheus-stack`, which later chapters set. Chart 92.1.1 ships Prometheus Operator v0.94.1.
 
 > [!WARNING]
 > **Common pitfalls to watch out for**
@@ -779,7 +783,7 @@ pip3 install opentelemetry-api opentelemetry-sdk \
 
 | Tool | Version | Purpose |
 |------|---------|---------|
-| ArgoCD | ≥2.9 | GitOps continuous deployment |
+| ArgoCD | 3.5.4 | GitOps continuous deployment |
 | Flask | ≥2.3 | Python web framework (demo app) |
 | Express.js | ≥4.18 | Node.js web framework (instrumentation demo) |
 | OpenTelemetry JS SDK | ≥1.17 | Node.js instrumentation |
@@ -792,7 +796,7 @@ Declarative GitOps continuous delivery tool for Kubernetes. Used by the platform
 **Install ArgoCD to cluster:**
 ```bash
 kubectl create namespace argocd
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v3.5.4/manifests/install.yaml
 ```
 
 **Install CLI:**
@@ -804,7 +808,7 @@ brew install argocd
 
 **Linux (Ubuntu/Debian):**
 ```bash
-curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/download/v3.5.4/argocd-linux-amd64
 sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
 ```
 
@@ -850,7 +854,7 @@ npm install @opentelemetry/sdk-node \
 
 | Tool | Version | Purpose |
 |------|---------|---------|
-| Backstage | ≥1.20 | Developer portal framework by Spotify |
+| Backstage | image 1.55.2 (chart 2.10.2) | Developer portal framework by Spotify |
 | PostgreSQL | ≥14.0 | Database backend for Backstage |
 
 #### Backstage
@@ -860,8 +864,9 @@ Internal developer portal providing a software catalog, TechDocs, and service sc
 **Option 1: Deploy via Helm**
 ```bash
 helm repo add backstage https://backstage.github.io/charts
-helm install backstage backstage/backstage \
-  --namespace backstage --create-namespace
+helm upgrade --install backstage backstage/backstage --version 2.10.2 \
+  --namespace backstage --create-namespace \
+  -f Ch06/backstage-helm-values.yaml   # pins the image to ghcr.io/backstage/backstage 1.55.2
 ```
 
 **Option 2: Create local development instance**
@@ -967,8 +972,8 @@ pip3 install pyyaml requests pytest
 
 | Tool | Version | Purpose |
 |------|---------|---------|
-| Crossplane | ≥1.14 | Kubernetes-native infrastructure management |
-| Crossplane CLI | ≥1.14 | CLI for building and pushing Crossplane packages |
+| Crossplane | chart 2.4.2 | Kubernetes-native infrastructure management |
+| Crossplane CLI | 2.4.x (match the chart) | CLI for building and pushing Crossplane packages |
 
 #### Crossplane
 
@@ -978,7 +983,7 @@ Extends Kubernetes to manage external infrastructure resources using Custom Reso
 ```bash
 helm repo add crossplane-stable https://charts.crossplane.io/stable
 helm repo update
-helm install crossplane crossplane-stable/crossplane \
+helm install crossplane crossplane-stable/crossplane --version 2.4.2 \
   --namespace crossplane-system --create-namespace
 ```
 
@@ -991,8 +996,8 @@ brew install crossplane/tap/crossplane
 
 **Linux (Ubuntu/Debian):**
 ```bash
-curl -sL https://raw.githubusercontent.com/crossplane/crossplane/master/install.sh | sh
-sudo mv crossplane /usr/local/bin/
+curl -sL -o crossplane https://releases.crossplane.io/stable/v2.4.2/bin/linux_amd64/crossplane
+chmod +x crossplane && sudo mv crossplane /usr/local/bin/
 ```
 
 **Windows:**
@@ -1084,9 +1089,9 @@ pip3 install pyyaml requests pytest
 
 | Tool | Version | Purpose |
 |------|---------|---------|
-| OPA Gatekeeper | ≥3.14 | Kubernetes admission controller |
-| conftest | ≥0.41 | Policy testing for configuration files |
-| OPA CLI | ≥0.60 | Open Policy Agent for Rego testing |
+| OPA Gatekeeper | chart 3.23.1 | Kubernetes admission controller |
+| conftest | 0.71.1 | Policy testing for configuration files |
+| OPA CLI | 1.21.1 | Open Policy Agent for Rego testing |
 | pre-commit | Latest | Git hook framework for shift-left validation |
 | prometheus-client | Latest | Python library for custom Prometheus exporters |
 
@@ -1103,8 +1108,8 @@ brew install conftest
 
 **Linux (Ubuntu/Debian):**
 ```bash
-wget https://github.com/open-policy-agent/conftest/releases/latest/download/conftest_Linux_x86_64.tar.gz
-tar xzf conftest_Linux_x86_64.tar.gz
+wget https://github.com/open-policy-agent/conftest/releases/download/v0.71.1/conftest_0.71.1_Linux_x86_64.tar.gz
+tar xzf conftest_0.71.1_Linux_x86_64.tar.gz
 sudo mv conftest /usr/local/bin/
 ```
 
@@ -1136,7 +1141,7 @@ brew install opa
 
 **Linux (Ubuntu/Debian):**
 ```bash
-curl -L -o opa https://openpolicyagent.org/downloads/latest/opa_linux_amd64
+curl -L -o opa https://openpolicyagent.org/downloads/v1.21.1/opa_linux_amd64
 chmod +x opa && sudo mv opa /usr/local/bin/
 ```
 
@@ -1169,10 +1174,10 @@ pip3 install prometheus-client kubernetes pyyaml
 
 | Tool | Version | Purpose |
 |------|---------|---------|
-| OpenCost | ≥1.108 | CNCF Kubernetes cost allocation (open-source) |
+| OpenCost | chart 2.5.32 (OpenCost 1.121.3) | CNCF Kubernetes cost allocation (open-source) |
 | Karpenter | ≥0.33 | Kubernetes-native node autoscaling and instance selection |
-| VPA | Latest | Vertical Pod Autoscaler for rightsizing |
-| Metrics Server | Latest | Cluster resource metrics for HPA/VPA |
+| VPA | 1.8.0 | Vertical Pod Autoscaler for rightsizing |
+| Metrics Server | 0.9.0 | Cluster resource metrics for HPA/VPA |
 
 > **Note:** HPA (Horizontal Pod Autoscaler) is built into every standard Kubernetes cluster and does not require separate installation. You only need the Metrics Server so HPA has data to work with.
 
@@ -1184,7 +1189,7 @@ CNCF sandbox project providing Kubernetes-native cost allocation. Requires Prome
 ```bash
 helm repo add opencost https://opencost.github.io/opencost-helm-chart
 helm repo update
-helm install opencost opencost/opencost \
+helm install opencost opencost/opencost --version 2.5.32 \
   --namespace opencost --create-namespace \
   --set opencost.prometheus.internal.serviceName="monitoring-kube-prometheus-prometheus" \
   --set opencost.prometheus.internal.namespaceName="monitoring" \
@@ -1238,9 +1243,15 @@ VPA is not included in standard Kubernetes and must be installed separately. It 
 
 **All platforms (requires kubectl access to cluster):**
 ```bash
-git clone https://github.com/kubernetes/autoscaler.git /tmp/autoscaler
-kubectl apply -f /tmp/autoscaler/vertical-pod-autoscaler/deploy/
-# Ignore v1beta1 CRD errors — they are harmless (old API versions)
+# Install VPA v1.8.0 straight from the autoscaler repo (no clone needed)
+VPA=https://github.com/kubernetes/autoscaler//vertical-pod-autoscaler
+VPA_REF=vertical-pod-autoscaler/v1.8.0
+kubectl apply -k "$VPA/deploy?ref=$VPA_REF"
+
+# The admission controller mounts a TLS secret (vpa-tls-certs) that the manifests
+# do not create; without it the pod hangs in ContainerCreating. Generate it with
+# the upstream script (needs openssl; it creates the secret in kube-system):
+curl -sL "https://raw.githubusercontent.com/kubernetes/autoscaler/$VPA_REF/vertical-pod-autoscaler/pkg/admission-controller/gencerts.sh" | bash
 ```
 
 **Verify installation:**
@@ -1259,7 +1270,7 @@ kubectl get pods -n kube-system | grep vpa
 Required for HPA and VPA functionality:
 
 ```bash
-kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.9.0/components.yaml
 # For Kind clusters, patch the deployment to skip TLS verification:
 kubectl patch deployment metrics-server -n kube-system \
   --type='json' -p='[{"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--kubelet-insecure-tls"}]'
@@ -1276,9 +1287,9 @@ kubectl patch deployment metrics-server -n kube-system \
 
 | Tool | Version | Purpose |
 |------|---------|---------|
-| Sloth | ≥0.11 | SLO-to-Prometheus rules generator |
-| Velero | ≥1.12 | Kubernetes backup and disaster recovery |
-| Chaos Mesh | ≥2.6 | Chaos engineering platform |
+| Sloth | 0.11.0 | SLO-to-Prometheus rules generator |
+| Velero | 1.18.2 (chart 12.2.1) | Kubernetes backup and disaster recovery |
+| Chaos Mesh | chart 2.8.4 | Chaos engineering platform |
 
 #### Go (required for Sloth)
 
@@ -1311,7 +1322,7 @@ Generates Prometheus recording and alerting rules from SLO specifications.
 
 **Option A — via Go (recommended):**
 ```bash
-go install github.com/slok/sloth/cmd/sloth@latest
+go install github.com/slok/sloth/cmd/sloth@v0.11.0
 ```
 
 **Option B — direct binary download (no Go required):**
@@ -1353,10 +1364,12 @@ brew install velero
 
 **Linux (Ubuntu/Debian):**
 ```bash
-curl -L -o velero.tar.gz https://github.com/vmware-tanzu/velero/releases/latest/download/velero-v1.12.0-linux-amd64.tar.gz
+curl -L -o velero.tar.gz https://github.com/vmware-tanzu/velero/releases/download/v1.18.2/velero-v1.18.2-linux-amd64.tar.gz
 tar xzf velero.tar.gz
 sudo mv velero-*/velero /usr/local/bin/
 ```
+
+The CLI is installed above; the Velero server is deployed to the cluster in Chapter 13 with the Helm chart `vmware-tanzu/velero` pinned to `--version 12.2.1` (Velero 1.18.2).
 
 **Windows:**
 ```powershell
@@ -1383,7 +1396,7 @@ Cloud-native chaos engineering platform for Kubernetes with pod failure, network
 ```bash
 helm repo add chaos-mesh https://charts.chaos-mesh.org
 helm repo update
-helm install chaos-mesh chaos-mesh/chaos-mesh \
+helm install chaos-mesh chaos-mesh/chaos-mesh --version 2.8.4 \
   --namespace chaos-mesh --create-namespace \
   --set chaosDaemon.runtime=containerd \
   --set chaosDaemon.socketPath=/run/containerd/containerd.sock
@@ -1426,7 +1439,7 @@ pip3 install -r requirements.txt
 > - LangChain's API changes frequently between minor versions; pin your version in `requirements.txt` to avoid breaking changes.
 > - ChromaDB's default in-memory mode loses all embeddings on restart; configure persistent storage for anything beyond quick tests.
 > - Anthropic API rate limits can be hit when batch-processing documents for RAG; implement exponential backoff and request throttling.
-> - Scripts run in mock mode without an API key. Set `ANTHROPIC_API_KEY` to use real LLM responses.
+> - Scripts run in mock mode without an LLM configured. Set `ANTHROPIC_API_KEY` (or `OLLAMA_MODEL` for a local model) to use real LLM responses.
 
 #### LLM API Key (Optional)
 
@@ -1437,9 +1450,12 @@ All Chapter 14 scripts run in mock mode by default — no API key needed. To use
 # Option A: Anthropic Claude (recommended)
 export ANTHROPIC_API_KEY="sk-ant-your-key-here"
 
-# Option B: Local LLM with Ollama (no key needed)
+# Option B: Local LLM with Ollama (no key needed; used when ANTHROPIC_API_KEY is not set)
 ollama pull mistral && ollama serve
+export OLLAMA_MODEL="mistral"
 ```
+
+Alternatively, copy `Ch14/.env_example` to `.env`, set `ANTHROPIC_API_KEY` or `OLLAMA_MODEL` there, and load it with `set -a && source .env && set +a`. Only `platform_chatbot/rag_pipeline.py` and `platform_chatbot/incident_triage.py` call an LLM.
 
 **Windows (PowerShell):**
 ```powershell
