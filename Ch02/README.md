@@ -238,7 +238,7 @@ Files in the `environments/` tree belong to the **platform-services** repository
 | `environments/base/helm-repos.yaml` | Flux `HelmRepository` CRDs for Istio, cert-manager, Prometheus, OPA, Flux |
 | `environments/base/istio-helm.yaml` | Flux `HelmRelease` CRDs for istio-base, istiod, and istio-ingress (versions omitted — set per env) |
 | `environments/base/kustomization.yaml` | Kustomize root listing base resources for overlay inheritance |
-| `environments/platform-sandbox/istio.yaml` | Version overlay: pins istio-base, istiod, istio-ingress to `1.22.4` for platform-sandbox |
+| `environments/platform-sandbox/istio.yaml` | Version overlay: pins istio-base, istiod, istio-ingress to `1.30.5` for platform-sandbox |
 | `environments/platform-sandbox/kustomization.yaml` | Kustomize overlay: includes base resources + applies `istio.yaml` patch + adds env label |
 | `environments/app-dev/istio.yaml` | Version overlay for app-dev (promoted from sandbox after validation) |
 | `environments/app-dev/kustomization.yaml` | Kustomize overlay for app-dev environment |
@@ -882,7 +882,7 @@ username `admin` and password `admin` — set explicitly via
 If you change or remove that value, the chart auto-generates a password
 instead; retrieve it with:
 ```bash
-kubectl get secret -n monitoring monitoring-kube-prometheus-stack-grafana \
+kubectl get secret -n monitoring kube-prometheus-stack-grafana \
   -o jsonpath='{.data.admin-password}' | base64 -d; echo
 ```
 
@@ -1296,6 +1296,14 @@ If timeouts persist, give Colima more resources:
 colima stop
 colima start --cpu 4 --memory 6
 ```
+
+### kube-prometheus-stack HelmRelease Fails on the Admission Hook
+
+**`kube-prometheus-stack` shows `False` with "pre-upgrade hooks failed: timeout waiting for: [Job/monitoring/...-admission-create status: 'InProgress']":**
+
+The `monitoring` namespace is Istio-injected, and the chart's `admission-create` / `admission-patch` Jobs get an `istio-proxy` sidecar that never exits, so the Job never completes and Helm's hook times out (`kubectl get pods -n monitoring` shows the Job pod stuck at `1/2 NotReady`). `platform-services.yaml` already prevents this with `prometheusOperator.admissionWebhooks.patch.podAnnotations: sidecar.istio.io/inject: "false"`. If you see it anyway (for example with an older copy of the manifest), re-apply the current manifest, delete the stuck Job (`kubectl delete job -n monitoring <name>-admission-create`) and let Flux retry.
+
+The HelmRelease sets `releaseName: kube-prometheus-stack`; without it Flux would name the release `monitoring-kube-prometheus-stack`, and every service name and the `release` label that later chapters rely on would change. If you are moving an existing cluster from the old name, delete the HelmRelease first (`kubectl delete helmrelease kube-prometheus-stack -n flux-system`) so Flux uninstalls the old release, then apply the manifest again. PrometheusRules and ServiceMonitors you created yourself keep the old `release` label and must be relabeled (`kubectl label --overwrite ... release=kube-prometheus-stack`).
 
 ### Gatekeeper Webhook Timeout
 

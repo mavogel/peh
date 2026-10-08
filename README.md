@@ -281,7 +281,7 @@ After recreating a cluster, all Helm releases and deployed workloads are gone. R
 # Monitoring stack (Ch4+) — needed by Ch4, Ch8, Ch11, Ch12, Ch13
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
-helm install monitoring prometheus-community/kube-prometheus-stack --version 92.1.1 \
+helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack --version 92.1.1 \
   --namespace monitoring --create-namespace
 
 # Gatekeeper (Ch3, Ch11)
@@ -317,17 +317,15 @@ kubectl get nodes                # Should show one Ready node
 
 Then re-run any `kubectl port-forward` commands from your chapter's README.
 Chapter 2 ships `Ch02/scripts/port-forward.sh` to manage these in the
-background instead of running them by hand; if you installed the monitoring
-stack manually per the commands above (Helm release name `monitoring`),
-override its service names:
+background instead of running them by hand. Its default service names match the
+monitoring stack whether Flux (Chapter 2) or the commands above installed it,
+because both use the Helm release name `kube-prometheus-stack`:
 
 ```bash
-GRAFANA_SVC=svc/monitoring-grafana \
-PROMETHEUS_SVC=svc/prometheus-operated \
-  Ch02/scripts/port-forward.sh start
+Ch02/scripts/port-forward.sh start
 
 # Retrieve the Grafana admin password
-kubectl get secret monitoring-grafana -n monitoring -o jsonpath='{.data.admin-password}' | base64 -d; echo
+kubectl get secret kube-prometheus-stack-grafana -n monitoring -o jsonpath='{.data.admin-password}' | base64 -d; echo
 ```
 
 Open [http://localhost:3000](http://localhost:3000) and log in with username `admin` and the password from the command above.

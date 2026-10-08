@@ -622,7 +622,7 @@ The observability stack requires Prometheus and Grafana running in-cluster. Depl
 # Deploy kube-prometheus-stack (Prometheus + Grafana + Alertmanager)
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
-helm install monitoring prometheus-community/kube-prometheus-stack --version 92.1.1 \
+helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack --version 92.1.1 \
   --namespace monitoring --create-namespace
 
 # Wait for pods to be ready (1-2 minutes)
@@ -630,10 +630,10 @@ kubectl get pods -n monitoring
 
 # Port-forward Prometheus and Grafana for local access
 kubectl port-forward -n monitoring svc/prometheus-operated 9090:9090 &
-kubectl port-forward -n monitoring svc/monitoring-grafana 3000:80 &
+kubectl port-forward -n monitoring svc/kube-prometheus-stack-grafana 3000:80 &
 
 # Retrieve the Grafana admin password
-kubectl get secret monitoring-grafana -n monitoring -o jsonpath='{.data.admin-password}' | base64 -d; echo
+kubectl get secret kube-prometheus-stack-grafana -n monitoring -o jsonpath='{.data.admin-password}' | base64 -d; echo
 ```
 
 Open [http://localhost:3000](http://localhost:3000) and log in with username `admin` and the password from the command above.
@@ -643,11 +643,11 @@ Open [http://localhost:3000](http://localhost:3000) and log in with username `ad
 **Expected Output:**
 ```
 NAME                                                     READY   STATUS    RESTARTS   AGE
-alertmanager-monitoring-kube-prometheus-alertmanager-0    2/2     Running   0          2m
-monitoring-grafana-xxxxx                                 3/3     Running   0          2m
-monitoring-kube-prometheus-operator-xxxxx                 1/1     Running   0          2m
-monitoring-kube-state-metrics-xxxxx                       1/1     Running   0          2m
-prometheus-monitoring-kube-prometheus-prometheus-0         2/2     Running   0          2m
+alertmanager-kube-prometheus-stack-alertmanager-0    2/2     Running   0          2m
+kube-prometheus-stack-grafana-xxxxx                                 3/3     Running   0          2m
+kube-prometheus-stack-operator-xxxxx                 1/1     Running   0          2m
+kube-prometheus-stack-kube-state-metrics-xxxxx                       1/1     Running   0          2m
+prometheus-kube-prometheus-stack-prometheus-0         2/2     Running   0          2m
 ```
 
 ### Phase 1: Infrastructure Setup (Kubernetes)
@@ -929,13 +929,13 @@ is copied into the Prometheus pod:
 kubectl apply -f alert-rules.yaml
 
 # The operator only loads rules whose "release" label matches the Helm release.
-# If the stack came from Chapter 2 (Flux), the release is monitoring-kube-prometheus-stack:
+# (the release is named kube-prometheus-stack for the Flux and the helm install alike):
 kubectl get prometheus -n monitoring -o jsonpath='{.items[0].spec.ruleSelector}{"\n"}'
 kubectl label prometheusrule platform-observability-alerts -n monitoring \
-  release=monitoring-kube-prometheus-stack --overwrite
+  release=kube-prometheus-stack --overwrite
 
 # Verify rules are loaded (allow ~30s for the operator to reload)
-kubectl port-forward -n monitoring svc/monitoring-kube-prometheus-prometheus 9090:9090 &
+kubectl port-forward -n monitoring svc/kube-prometheus-stack-prometheus 9090:9090 &
 curl -s http://localhost:9090/api/v1/rules | jq '.data.groups[].name'
 ```
 

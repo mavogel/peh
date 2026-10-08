@@ -733,11 +733,11 @@ The observability stack is best deployed to your Kind cluster using Helm charts.
 ```bash
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
-helm install monitoring prometheus-community/kube-prometheus-stack --version 92.1.1 \
+helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack --version 92.1.1 \
   --namespace monitoring --create-namespace
 ```
 
-The release name `monitoring` matters: Prometheus then only loads rules labelled `release: monitoring-kube-prometheus-stack`, which later chapters set. Chart 92.1.1 ships Prometheus Operator v0.94.1.
+The release name `kube-prometheus-stack` matters and is the same everywhere in the book (the Chapter 2 Flux `HelmRelease` sets it with `releaseName`): Prometheus only loads rules labelled `release: kube-prometheus-stack`, which later chapters set, and the service names such as `kube-prometheus-stack-prometheus` and `kube-prometheus-stack-grafana` derive from it. Chart 92.1.1 ships Prometheus Operator v0.94.1.
 
 > [!WARNING]
 > **Common pitfalls to watch out for**
@@ -1191,7 +1191,7 @@ helm repo add opencost https://opencost.github.io/opencost-helm-chart
 helm repo update
 helm install opencost opencost/opencost --version 2.5.32 \
   --namespace opencost --create-namespace \
-  --set opencost.prometheus.internal.serviceName="monitoring-kube-prometheus-prometheus" \
+  --set opencost.prometheus.internal.serviceName="kube-prometheus-stack-prometheus" \
   --set opencost.prometheus.internal.namespaceName="monitoring" \
   --set opencost.prometheus.internal.port=9090 \
   --set opencost.ui.enabled=true \

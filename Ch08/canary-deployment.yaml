@@ -255,7 +255,7 @@ metadata:
   name: myapp
   namespace: production
   labels:
-    release: prometheus
+    release: kube-prometheus-stack
 spec:
   selector:
     matchLabels:

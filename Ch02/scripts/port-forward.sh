@@ -9,9 +9,10 @@
 # this script started.
 #
 # Service names default to the ones platform-services.yaml's Flux HelmRelease
-# produces (release name "monitoring-kube-prometheus-stack" in the
-# "monitoring" namespace). If you installed the stack manually with a
-# different Helm release name, override the matching env var, e.g.:
+# produces (release name "kube-prometheus-stack" in the "monitoring"
+# namespace), which is also what the helm install in Chapter 4 produces. If
+# you installed the stack under a different Helm release name, override the
+# matching env var, e.g. for a release named "monitoring":
 #   GRAFANA_SVC=svc/monitoring-grafana \
 #   PROMETHEUS_SVC=svc/monitoring-kube-prometheus-prometheus \
 #   ALERTMANAGER_SVC=svc/monitoring-kube-prometheus-alertmanager \
@@ -31,9 +32,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PID_FILE="${SCRIPT_DIR}/.port-forward.pids"
 
-GRAFANA_SVC="${GRAFANA_SVC:-svc/monitoring-kube-prometheus-stack-grafana}"
-PROMETHEUS_SVC="${PROMETHEUS_SVC:-svc/monitoring-kube-prometheus-prometheus}"
-ALERTMANAGER_SVC="${ALERTMANAGER_SVC:-svc/monitoring-kube-prometheus-alertmanager}"
+GRAFANA_SVC="${GRAFANA_SVC:-svc/kube-prometheus-stack-grafana}"
+PROMETHEUS_SVC="${PROMETHEUS_SVC:-svc/kube-prometheus-stack-prometheus}"
+ALERTMANAGER_SVC="${ALERTMANAGER_SVC:-svc/kube-prometheus-stack-alertmanager}"
 
 # name:namespace:svc:local_port:remote_port
 FORWARDS=(

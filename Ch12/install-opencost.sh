@@ -18,7 +18,7 @@
 set -e
 
 NAMESPACE="opencost"
-PROMETHEUS_SERVER="monitoring-kube-prometheus-prometheus"
+PROMETHEUS_SERVER="kube-prometheus-stack-prometheus"
 PROMETHEUS_NAMESPACE="monitoring"
 
 echo "Adding OpenCost Helm repository..."

@@ -114,7 +114,7 @@ Before deploying the code in this chapter, ensure you have the following prerequ
   # Deploy if not already installed (e.g., after a Kind cluster restart):
   helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
   helm repo update
-  helm install monitoring prometheus-community/kube-prometheus-stack --version 92.1.1 \
+  helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack --version 92.1.1 \
     --namespace monitoring --create-namespace
   # If already installed, this will error with "cannot re-use a name" — that's fine.
   ```

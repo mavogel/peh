@@ -32,11 +32,10 @@ metadata:
   namespace: gatekeeper-system
   labels:
     # Prometheus only loads rules whose "release" label matches its ruleSelector,
-    # which is the Helm release name of kube-prometheus-stack. Chapter 2 (Flux)
-    # produces "monitoring-kube-prometheus-stack"; the Chapter 4 helm installs use
-    # "kube-prometheus-stack" or "monitoring". Check yours with:
+    # which is the Helm release name of kube-prometheus-stack ("kube-prometheus-stack"
+    # for both the Chapter 2 Flux install and the Chapter 4 helm install). Check yours with:
     #   kubectl get prometheus -n monitoring -o jsonpath='{.items[0].spec.ruleSelector}'
-    release: monitoring-kube-prometheus-stack
+    release: kube-prometheus-stack
     app: gatekeeper
 spec:
   groups:

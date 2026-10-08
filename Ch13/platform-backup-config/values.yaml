@@ -290,14 +290,14 @@ metrics:
   serviceMonitor:
     enabled: true
     additionalLabels:
-      release: monitoring-kube-prometheus-stack
+      release: kube-prometheus-stack
 
   # Alerts for Velero operations. The kube-prometheus-stack in this repo only loads
-  # rules labelled release=monitoring-kube-prometheus-stack.
+  # rules labelled release=kube-prometheus-stack.
   prometheusRule:
     enabled: true
     additionalLabels:
-      release: monitoring-kube-prometheus-stack
+      release: kube-prometheus-stack
     spec:
       # Alert if 3 backups fail within an hour
       - alert: VeleroBackupFailure

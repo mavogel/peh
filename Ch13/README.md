@@ -160,7 +160,7 @@ helm install chaos-mesh chaos-mesh/chaos-mesh --version 2.8.4 --namespace chaos-
    # If not already installed from Chapter 4/11/12:
    helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
    helm repo update
-   helm install monitoring prometheus-community/kube-prometheus-stack --version 92.1.1 \
+   helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack --version 92.1.1 \
      --namespace monitoring --create-namespace
    ```
    If already installed, the `helm install` will error with "cannot re-use a name" — that's fine.
@@ -197,7 +197,7 @@ helm list -n monitoring 2>/dev/null | grep monitoring
 # If no output, install it:
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
-helm install monitoring prometheus-community/kube-prometheus-stack --version 92.1.1 \
+helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack --version 92.1.1 \
   --namespace monitoring --create-namespace
 
 # Verify deployment
@@ -205,10 +205,10 @@ kubectl get pods -n monitoring
 
 # Port-forward Prometheus and Grafana
 kubectl port-forward -n monitoring svc/prometheus-operated 9090:9090 &
-kubectl port-forward -n monitoring svc/monitoring-grafana 3000:80 &
+kubectl port-forward -n monitoring svc/kube-prometheus-stack-grafana 3000:80 &
 
 # Retrieve Grafana admin password
-kubectl get secret monitoring-grafana -n monitoring -o jsonpath='{.data.admin-password}' | base64 -d; echo
+kubectl get secret kube-prometheus-stack-grafana -n monitoring -o jsonpath='{.data.admin-password}' | base64 -d; echo
 ```
 **Expected Output:** Prometheus accessible at http://localhost:9090, Grafana at http://localhost:3000 (login: admin / password from above)
 
@@ -232,7 +232,7 @@ kubectl get prometheusrule -A | grep -i slo
 #### Step 1.3: Deploy SLO Dashboard
 ```bash
 # Get Grafana admin password (if you haven't already)
-GRAFANA_PASS=$(kubectl get secret  monitoring-kube-prometheus-stack-grafana -n monitoring -o jsonpath='{.data.admin-password}' | base64 -d)
+GRAFANA_PASS=$(kubectl get secret  kube-prometheus-stack-grafana -n monitoring -o jsonpath='{.data.admin-password}' | base64 -d)
 
 # Import via API:
 curl -X POST http://admin:${GRAFANA_PASS}@localhost:3000/api/dashboards/db \
@@ -245,7 +245,7 @@ curl -X POST http://admin:${GRAFANA_PASS}@localhost:3000/api/dashboards/db \
 # 3. Select slo-dashboard.json → click Import
 ```
 > **Troubleshooting:** If the API returns `401 Invalid username or password`, Grafana's stored admin password has drifted from the secret (it only reads the secret on first start). Reset it to the secret's value, then re-run the import:
-> `kubectl exec -n monitoring deploy/monitoring-kube-prometheus-stack-grafana -c grafana -- grafana cli admin reset-admin-password "$GRAFANA_PASS"`
+> `kubectl exec -n monitoring deploy/kube-prometheus-stack-grafana -c grafana -- grafana cli admin reset-admin-password "$GRAFANA_PASS"`
 
 **Expected Output:** SLO Dashboard visible in Grafana showing availability, latency SLIs and error budget
 
@@ -568,7 +568,7 @@ python3 chaos-runner.py --delete pod-kill-single
 - Pod restarts within normal parameters
 - System resilience assessment "PASSED"
 
-> **Note:** The metrics come from Prometheus at `localhost:9090` (port-forward it first: `kubectl port-forward -n monitoring svc/monitoring-kube-prometheus-prometheus 9090:9090`) and look for `http_requests_total` and `request_duration_seconds_bucket`. If Prometheus is unreachable or returns no series for any of the queries, the report starts with a "No Prometheus data returned" warning instead of a real assessment. The nginx placeholder from Step 3.2 does not export these application metrics, so the error-rate and latency values are zero. Chaos Mesh 2.x has no single phase field, so the runner derives the phase from the `AllInjected`/`AllRecovered` conditions; `pod-kill` and `container-kill` are one-shot and count as completed once injected. The `Schedule` objects in the chaos YAML files keep injecting faults until deleted (`kubectl delete schedule --all -n chaos-testing`).
+> **Note:** The metrics come from Prometheus at `localhost:9090` (port-forward it first: `kubectl port-forward -n monitoring svc/kube-prometheus-stack-prometheus 9090:9090`) and look for `http_requests_total` and `request_duration_seconds_bucket`. If Prometheus is unreachable or returns no series for any of the queries, the report starts with a "No Prometheus data returned" warning instead of a real assessment. The nginx placeholder from Step 3.2 does not export these application metrics, so the error-rate and latency values are zero. Chaos Mesh 2.x has no single phase field, so the runner derives the phase from the `AllInjected`/`AllRecovered` conditions; `pod-kill` and `container-kill` are one-shot and count as completed once injected. The `Schedule` objects in the chaos YAML files keep injecting faults until deleted (`kubectl delete schedule --all -n chaos-testing`).
 
 ### Phase 4: Validation and Testing
 
@@ -606,7 +606,7 @@ Ran 21 tests in 0.041s - OK
 #### Step 4.2: Validate SLO Compliance
 ```bash
 # Query SLO metrics in Prometheus (port-forward first:
-#   kubectl port-forward -n monitoring svc/monitoring-kube-prometheus-prometheus 9090:9090)
+#   kubectl port-forward -n monitoring svc/kube-prometheus-stack-prometheus 9090:9090)
 PROM_URL="http://localhost:9090"
 query() { curl -s -G "$PROM_URL/api/v1/query" --data-urlencode "query=$1" | jq -c '.data.result[] | {slo: .metric.sloth_slo, value: .value[1]}'; }
 
@@ -627,7 +627,7 @@ query 'slo:sli_error:ratio_rate5m{sloth_service="demo-app",sloth_slo="latency"}'
 # availability > 0.999, error budget remaining > 0 (not exhausted), slow-request ratio < 0.01
 ```
 
-> **Note:** The SLIs are computed from `http_requests_total{job="demo-app"}` and `http_request_duration_seconds_bucket{job="demo-app"}`. Until an instrumented demo-app is scraped (a ServiceMonitor with `job="demo-app"`), only the objectives and error budgets return values and the SLI queries return an empty result. The Sloth `PrometheusRule` must carry Prometheus's `ruleSelector` label (`release=monitoring-kube-prometheus-stack`); `generate-slo-rules.sh` adds it, otherwise Prometheus silently ignores the rules. The `slo:api:*` rules in `slo-definitions.yaml` (used by `slo-dashboard.json`) are stored in a `ConfigMap`, which the Prometheus Operator does not load as rules.
+> **Note:** The SLIs are computed from `http_requests_total{job="demo-app"}` and `http_request_duration_seconds_bucket{job="demo-app"}`. Until an instrumented demo-app is scraped (a ServiceMonitor with `job="demo-app"`), only the objectives and error budgets return values and the SLI queries return an empty result. The Sloth `PrometheusRule` must carry Prometheus's `ruleSelector` label (`release=kube-prometheus-stack`); `generate-slo-rules.sh` adds it, otherwise Prometheus silently ignores the rules. The `slo:api:*` rules in `slo-definitions.yaml` (used by `slo-dashboard.json`) are stored in a `ConfigMap`, which the Prometheus Operator does not load as rules.
 
 #### Step 4.3: Validate DR Readiness
 ```bash
@@ -847,7 +847,7 @@ Two things are missing for real SLO data:
 - **Nothing produces the metrics.** The Sloth SLOs read `http_requests_total{job="demo-app"}` and `http_request_duration_seconds_bucket{job="demo-app"}`, which the nginx placeholder does not export.
 
 Ideas:
-- Turn the `groups:` content of the `slo-definitions` `ConfigMap` into a `PrometheusRule` (`spec.groups`) labelled `release: monitoring-kube-prometheus-stack` (the label Prometheus selects on), then point the dashboard panels at the rule names that exist, or keep the `slo:api:*` names in both places.
+- Turn the `groups:` content of the `slo-definitions` `ConfigMap` into a `PrometheusRule` (`spec.groups`) labelled `release: kube-prometheus-stack` (the label Prometheus selects on), then point the dashboard panels at the rule names that exist, or keep the `slo:api:*` names in both places.
 - Add a small instrumented sample app that exports `http_requests_total` (with a `code` label) and `http_request_duration_seconds_bucket`, with a `Service` and a `ServiceMonitor` that results in `job="demo-app"`. Give it a `docker.io/` image and resource limits so it passes the Gatekeeper policies.
 - Add a traffic generator (a small `Job` or `CronJob` calling the app, including some failing and slow requests) so the availability, latency and error-budget queries in Step 4.2, the dashboard and the burn-rate alerts show real values.
 - Re-run the chaos experiments from Phase 3 against that app and watch the SLIs and `chaos-runner.py --generate-report` change, which turns the report from the "No Prometheus data" warning into a real assessment.

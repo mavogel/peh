@@ -559,7 +559,7 @@ kubectl get servicemonitor -n gatekeeper-system
 kubectl get svc -n gatekeeper-system | grep gatekeeper
 
 # Verify Prometheus picked up the targets (about a minute after applying)
-kubectl port-forward -n monitoring svc/monitoring-kube-prometheus-prometheus 9090:9090 &
+kubectl port-forward -n monitoring svc/kube-prometheus-stack-prometheus 9090:9090 &
 curl -s localhost:9090/api/v1/targets | jq -r '.data.activeTargets[] | select(.scrapePool | test("gatekeeper")) | "\(.labels.pod) \(.health)"'
 kill %1
 ```

@@ -66,9 +66,9 @@ kubectl get nodes                       # Should show node(s) in Ready state
 kubectl create namespace monitoring
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
-#    The release name must be "monitoring": Prometheus then only loads rules
-#    labelled release=monitoring-kube-prometheus-stack, which Step 6 sets
-helm install monitoring prometheus-community/kube-prometheus-stack --version 92.1.1 \
+#    The release name must be "kube-prometheus-stack": Prometheus then only loads
+#    rules labelled release=kube-prometheus-stack, which Step 6 sets
+helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack --version 92.1.1 \
   --namespace monitoring --wait
 
 # 5. Confirm monitoring stack is running
@@ -337,7 +337,7 @@ The file creates two PrometheusRules and a ConfigMap with runbooks. `ai-governan
 **Verify Prometheus loaded the rules.** `kubectl apply` succeeding does not prove this, so ask Prometheus itself (in a second terminal, or run the port-forward in the background):
 
 ```bash
-kubectl port-forward -n monitoring svc/monitoring-kube-prometheus-prometheus 9090:9090 &
+kubectl port-forward -n monitoring svc/kube-prometheus-stack-prometheus 9090:9090 &
 sleep 40   # rules are evaluated every 30s; health is "unknown" until the first run
 curl -s localhost:9090/api/v1/rules | python3 -c '
 import sys, json
@@ -355,7 +355,7 @@ ai_agent_slos ['ok'] 5 rules
 
 No output means Prometheus did not load the rules (see the label note below); `['err']` means a rule expression failed. You can also open <http://localhost:9090/rules> while the port-forward runs.
 
-> **The `release` label matters.** Prometheus only loads rules labelled `release: monitoring-kube-prometheus-stack` (what you get from `helm install monitoring ...` as in the prerequisites). Without that label `kubectl apply` still succeeds, but Prometheus silently ignores the rules. If you installed the chart under another release name, change the label in `ai-governance-alerts.yaml` to match. Check what yours selects with `kubectl get prometheus -n monitoring -o jsonpath='{.items[0].spec.ruleSelector}'`.
+> **The `release` label matters.** Prometheus only loads rules labelled `release: kube-prometheus-stack` (the Helm release name used in the prerequisites and by the Chapter 2 Flux install). Without that label `kubectl apply` still succeeds, but Prometheus silently ignores the rules. If you installed the chart under another release name, change the label in `ai-governance-alerts.yaml` to match. Check what yours selects with `kubectl get prometheus -n monitoring -o jsonpath='{.items[0].spec.ruleSelector}'`.
 
 To see the Python metrics instrumentation:
 

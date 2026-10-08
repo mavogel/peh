@@ -5,7 +5,7 @@ metadata:
   namespace: monitoring
   labels:
     # Prometheus only loads rules carrying its release label (see README Step 6)
-    release: monitoring-kube-prometheus-stack
+    release: kube-prometheus-stack
 spec:
   groups:
     - name: ai_agent_governance
@@ -147,7 +147,7 @@ metadata:
   name: ai-governance-slos
   namespace: monitoring
   labels:
-    release: monitoring-kube-prometheus-stack
+    release: kube-prometheus-stack
 spec:
   groups:
     - name: ai_agent_slos

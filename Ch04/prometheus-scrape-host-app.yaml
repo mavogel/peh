@@ -6,9 +6,8 @@
 # pods in Kind (Docker Desktop) reach the host machine.
 #
 # Prometheus only loads ScrapeConfigs whose "release" label matches its Helm
-# release (see Phase 9). monitoring-kube-prometheus-stack is the Chapter 2
-# (Flux) release; use "monitoring" if you installed the stack with the
-# Chapter 4 helm install.
+# release (see Phase 9). The release is named kube-prometheus-stack whether
+# the stack came from Chapter 2 (Flux) or the Chapter 4 helm install.
 ---
 apiVersion: monitoring.coreos.com/v1alpha1
 kind: ScrapeConfig
@@ -16,7 +15,7 @@ metadata:
   name: platform-app
   namespace: monitoring
   labels:
-    release: monitoring-kube-prometheus-stack
+    release: kube-prometheus-stack
 spec:
   jobName: platform-app
   scrapeInterval: 15s
